@@ -39,10 +39,12 @@ if (-not (Test-Path $csc)) { throw "csc.exe not found: $csc" }
 
 Write-Host "Compiling installer..."
 $ErrorActionPreference = "Continue"
+$resTool = "/resource:" + $toolExe + ",PCFishTool.exe"
+$resJs = "/resource:" + $js + ",pcfish_autogroup.js"
 & $csc /nologo /target:winexe /platform:x64 /out:$setup `
     /r:System.Windows.Forms.dll /r:System.Drawing.dll `
-    /resource:$toolExe,PCFishTool.exe `
-    /resource:$js,pcfish_autogroup.js `
+    $resTool `
+    $resJs `
     $installerGenerated 2>&1 | ForEach-Object { Write-Host $_ }
 $cscCode = $LASTEXITCODE
 $ErrorActionPreference = "Stop"
@@ -65,3 +67,4 @@ foreach ($name in $assets) {
 }
 $lines | Set-Content -Path (Join-Path $outPath "SHA256SUMS.txt") -Encoding ASCII
 Get-Content (Join-Path $outPath "SHA256SUMS.txt")
+
