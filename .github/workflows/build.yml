@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: pack release zip
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pack
+        shell: pwsh
+        run: ./scripts/pack-release.ps1
+
+      - name: Verify
+        shell: pwsh
+        run: |
+          $v = (Get-Content ./VERSION -Raw).Trim()
+          $zip = "dist/PCFish-Tool-v$v.zip"
+          if (-not (Test-Path $zip)) { throw "Missing: $zip" }
+          Get-Item $zip, "dist/SHA256SUMS.txt" | Format-List FullName, Length
+          Get-Content "dist/SHA256SUMS.txt"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCFish-Tool
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error

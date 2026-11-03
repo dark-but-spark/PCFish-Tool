@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build output
+dist/
+build/
+*.zip
+*.7z
+
+# Frida / logs
+*.log
+frida-*.txt
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local game files / saves (never commit)
+SaveFile.es3
+Setting.es3
+GameAssembly.dll
+global-metadata.dat
+dump.cs
+script.json
+stringliteral.json
