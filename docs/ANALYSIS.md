@@ -177,3 +177,48 @@ UpdateMergeCount(); toast("msg_autoFillComplete")
 - 本地存档是 EasySave3 加密（AES-128-CBC，PBKDF2-HMAC-SHA1 100 次），密码硬编码在 `GameConfig`。
 - 服务器还提供 `/manage/search` 恢复鱼列表，说明鱼的最终记录在服务端。
 - 本文档不包含游戏二进制或完整 CSV；仅保留必要的概率表和偏移。
+
+## 7. 结果动画：固定时长还是可跳过
+
+### 7.1 流程
+
+```text
+服务器响应 (breed/merge/craft)
+  -> UIBreed / UIMerge 响应回调
+  -> 设置 UIFishResultFx.onFinishFx (+0x20)
+  -> 激活 viewResultFx（GatchaResultFX）
+  -> GatchaResultFX 播放洗牌动画（effectDuration，+0x30）
+  -> UnityEvent / 动画事件调用 UIFishResultFx.FinishFx (0x5ECBD0)
+  -> onFinishFx.Invoke()
+  -> UIFishResult.Show()
+```
+
+关键点：
+
+- **动画不是“等服务器”**。服务器响应只负责设置回调和启动 FX；即使网络很快，动画仍会按固定时长播放。
+- 动画时长由 prefab 上序列化的 `GatchaResultFX.effectDuration`（`+0x30`）和 FX 动画 / UnityEvent 决定，**不是网络 RTT**。
+- 结果界面只在 `FinishFx` 触发后才显示。因此“动画播放完”是人为的固定等待，可以跳过。
+
+### 7.2 跳过方式
+
+服务器响应回调返回后：
+
+1. 读取 `UIBreed.uiFishResultFx`（`+0x78`）或 `UIMerge.uiFishResultFx`（`+0xA0`）。
+2. 确认 `UIFishResultFx.onFinishFx`（`+0x20`）非空。
+3. 直接调用 `UIFishResultFx.FinishFx`（`0x5ECBD0`）。
+4. 把 `onFinishFx` 置空，避免动画结束时的 UnityEvent 二次触发。
+5. 可选：在 `GatchaResultFX.OnEnable`（`0x547CE0`）把 `effectDuration` 置 0，让洗牌协程尽快结束。
+
+工具中的 `CFG.skipResultFx = true` 就是按这个流程实现的；控制台会打印：
+
+```text
+[AutoGroup] skip result FX (breed)
+[AutoGroup] skip result FX (merge)
+```
+
+### 7.3 注意
+
+- 仅当响应状态为 `NetworkResult.Success`（0）时跳过；服务器维护 / 网络错误不会走成功分支。
+- `effectDuration` 的具体秒数在 prefab 上，不在代码里；可在运行时读 `GatchaResultFX + 0x30` 得到，或直接观察动画长度。
+- 跳过只改变“结果界面出现的时间”，不改变服务器返回的鱼。
+

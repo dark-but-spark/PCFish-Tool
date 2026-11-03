@@ -5,8 +5,21 @@ import os
 import sys
 import time
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCRIPT = os.path.join(ROOT, "src", "pcfish_autogroup.js")
+if getattr(sys, "frozen", False):
+    ROOT = os.path.dirname(sys.executable)
+else:
+    ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 仓库布局: <root>/src/pcfish_autogroup.js
+# 安装布局: <root>/pcfish_autogroup.js
+# PyInstaller 内嵌: <_MEIPASS>/pcfish_autogroup.js
+_CANDIDATES = [
+    os.path.join(ROOT, "src", "pcfish_autogroup.js"),
+    os.path.join(ROOT, "pcfish_autogroup.js"),
+]
+if getattr(sys, "frozen", False):
+    _CANDIDATES.append(os.path.join(getattr(sys, "_MEIPASS", ROOT), "pcfish_autogroup.js"))
+SCRIPT = next((p for p in _CANDIDATES if os.path.isfile(p)), _CANDIDATES[0])
 
 
 def fail(msg: str, code: int = 1) -> None:

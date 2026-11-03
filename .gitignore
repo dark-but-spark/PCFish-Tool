@@ -1,3 +1,4 @@
+﻿.dev/
 # Python
 __pycache__/
 *.pyc
@@ -6,7 +7,10 @@ venv/
 
 # Build output
 dist/
+dist-exe/
 build/
+build-exe/
+installer/Installer.g.cs
 *.zip
 *.7z
 
@@ -27,3 +31,5 @@ global-metadata.dat
 dump.cs
 script.json
 stringliteral.json
+
+

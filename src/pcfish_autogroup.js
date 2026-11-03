@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /*
  * PCFish Tool - 标准合成自动分组
@@ -28,6 +28,9 @@ const CFG = {
   strictSample: true,           // 有样板时严格使用样板组（不足10条也只用这组）
   fallbackWhenNotEnough: false, // 没有任何 >=10 的组时：true=退回原版混选；false=仍用最大组（可能不足10条）
   log: true,
+
+  // 服务器响应返回后，立即结束繁育/合成结果动画
+  skipResultFx: true,
 };
 
 function start() {
@@ -226,7 +229,96 @@ function start() {
     },
   });
 
+  // ---------------------------------------------------------------------------
+  // Result FX skip
+  //
+  // 繁育/合成结果动画的流程：
+  //   服务器响应 -> UIBreed/UIMerge 回调设置 UIFishResultFx.onFinishFx
+  //   -> 激活 FX -> GatchaResultFX 固定时长动画/UnityEvent -> FinishFx
+  //   -> onFinishFx -> UIFishResult.Show
+  //
+  // 动画时长是 prefab 上的固定值（GatchaResultFX.effectDuration +0x30），
+  // 不等待网络。服务端响应只负责触发。因此响应返回后可以直接调用
+  // UIFishResultFx.FinishFx，把结果界面立刻显示出来，并清空回调避免
+  // 动画结束时再次触发。
+  // ---------------------------------------------------------------------------
+  if (CFG.skipResultFx) {
+    const RVA_UIBREED_RESPONSE = 0x60ef10;
+    const RVA_UIMERGE_RESPONSES = [0x5f87d0, 0x5f8d50, 0x5f92d0];
+    const RVA_GATCHA_ONENABLE = 0x547ce0;
+    const finishFx = new NativeFunction(base.add(0x5ecbd0), 'void', ['pointer']);
+
+    function looksLikeUIMerge(p) {
+      try {
+        if (p.isNull()) return false;
+        const mergeType = p.add(0xb8).readS32();
+        if (mergeType !== 0 && mergeType !== 1) return false;
+        const arr = p.add(0x78).readPointer();
+        if (arr.isNull()) return false;
+        return arr.add(0x18).readS32() === 10;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function trySkipFx(owner, fxOffset, tag, validate) {
+      try {
+        if (owner.isNull()) return;
+        if (validate && !validate(owner)) return;
+        const fx = owner.add(fxOffset).readPointer();
+        if (fx.isNull()) return;
+        const callback = fx.add(0x20).readPointer();
+        if (callback.isNull()) return;
+        finishFx(fx);
+        fx.add(0x20).writePointer(ptr(0));
+        if (CFG.log) console.log('[AutoGroup] skip result FX (' + tag + ')');
+      } catch (e) {
+        if (CFG.log) console.log('[AutoGroup] skip FX error (' + tag + '): ' + e);
+      }
+    }
+
+    // 让 GatchaResultFX 的洗牌协程尽快结束
+    Interceptor.attach(base.add(RVA_GATCHA_ONENABLE), {
+      onEnter(args) {
+        try {
+          args[0].add(0x30).writeFloat(0.0);
+        } catch (e) {
+          // ignore
+        }
+      },
+    });
+
+    // 繁育响应：UIBreed.uiFishResultFx 在 +0x78
+    Interceptor.attach(base.add(RVA_UIBREED_RESPONSE), {
+      onEnter(args) {
+        this.owner = args[0];
+        this.status = args[1].toInt32();
+      },
+      onLeave() {
+        if (this.status === 0) {
+          trySkipFx(this.owner, 0x78, 'breed');
+        }
+      },
+    });
+
+    // 合成响应：UIMerge.uiFishResultFx 在 +0xA0
+    RVA_UIMERGE_RESPONSES.forEach(function (rva) {
+      Interceptor.attach(base.add(rva), {
+        onEnter(args) {
+          this.owner = args[0];
+          this.status = args[1].toInt32();
+        },
+        onLeave() {
+          if (this.status === 0) {
+            trySkipFx(this.owner, 0xa0, 'merge', looksLikeUIMerge);
+          }
+        },
+      });
+    });
+  }
+
   console.log('[AutoGroup] loaded, GameAssembly base = ' + base);
 }
 
 start();
+

@@ -79,3 +79,20 @@
 | `CF_FISH_MAX_COUNT` | 999 |
 | `CF_FISH_GROWTH_MAX` | 10 |
 | `MAX_MERGE_COUNT` | 10 |
+
+## 结果动画 / 跳过
+
+| 功能 | 方法 / 字段 | RVA / 偏移 |
+| --- | --- | --- |
+| 繁育响应回调 | `UIBreed.<Breed>b__24_2` | `0x60EF10` |
+| 合成响应回调（Standard / Season） | `UIMerge.<Merge>b__39_1/2/3` | `0x5F87D0` / `0x5F8D50` / `0x5F92D0` |
+| 结果 FX 结束 | `UIFishResultFx.FinishFx` | `0x5ECBD0` |
+| FX 启用 / 播放 | `GatchaResultFX.OnEnable` | `0x547CE0` |
+| 结果界面 | `UIFishResult.Show` | `0x5ECEA0` |
+| `UIBreed.uiFishResultFx` | 字段 | `+0x78` |
+| `UIMerge.uiFishResultFx` | 字段 | `+0xA0` |
+| `UIFishResultFx.onFinishFx` | 字段 | `+0x20` |
+| `GatchaResultFX.effectDuration` | 字段（float） | `+0x30` |
+| `UIMerge.mergeType` | 字段（0=Standard, 1=Season） | `+0xB8` |
+| `UIMerge.mergeFishList` | 字段（`string[10]`） | `+0x78` |
+

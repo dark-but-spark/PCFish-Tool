@@ -1,7 +1,17 @@
-# 更新日志
+﻿# 更新日志
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 版本号唯一来源是仓库根目录的 [`VERSION`](VERSION) 文件。
+
+## [0.2.0-beta.1] - 2026-11-04
+
+### 新增
+
+- EXE 安装器：自动检测 Steam 库、安装到 LocalAppData、创建快捷方式、支持静默安装 / 卸载。
+- 结果动画跳过：服务器响应后立即调用 `UIFishResultFx.FinishFx`，并将 `GatchaResultFX.effectDuration` 置 0。
+- 文档补充繁育 / 合成结果动画流程与跳过原理。
+- 偏移表补充响应回调、FX、`onFinishFx` 的 RVA / 偏移。
+- 构建脚本 `scripts/build-installer.ps1`；Actions 同时构建 zip 与安装器。
 
 ## [0.1.0] - 2026-11-04
 
