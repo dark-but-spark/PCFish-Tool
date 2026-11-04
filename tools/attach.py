@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
-"""Attach PCFish Tool's Frida script to a running PCFish.exe."""
+"""Attach PCFish Tool's Frida script to PCFish.exe.
+
+Usage:
+  PCFishTool.exe              # one-shot: start the game first, then run this
+  PCFishTool.exe --watch      # keep running; attach whenever PCFish.exe starts
+"""
 
 import os
 import sys
+import threading
 import time
 
 if getattr(sys, "frozen", False):
@@ -10,9 +16,9 @@ if getattr(sys, "frozen", False):
 else:
     ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 仓库布局: <root>/src/pcfish_autogroup.js
-# 安装布局: <root>/pcfish_autogroup.js
-# PyInstaller 内嵌: <_MEIPASS>/pcfish_autogroup.js
+# Repository layout: <root>/src/pcfish_autogroup.js
+# Installed layout:  <root>/pcfish_autogroup.js
+# PyInstaller data:  <_MEIPASS>/pcfish_autogroup.js
 _CANDIDATES = [
     os.path.join(ROOT, "src", "pcfish_autogroup.js"),
     os.path.join(ROOT, "pcfish_autogroup.js"),
@@ -27,33 +33,18 @@ def fail(msg: str, code: int = 1) -> None:
     sys.exit(code)
 
 
-def main() -> None:
+def find_pid(device):
     try:
-        import frida
-    except ImportError:
-        fail("缺少 frida。请先运行: python -m pip install frida", 1)
-
-    if not os.path.isfile(SCRIPT):
-        fail(f"找不到脚本: {SCRIPT}")
-
-    device = frida.get_local_device()
-    target = None
-    for proc in device.enumerate_processes():
-        if proc.name.lower() == "pcfish.exe":
-            target = proc
-            break
-
-    if target is None:
-        fail("未找到 PCFish.exe。请先启动游戏并进入鱼缸/主界面，再运行本脚本。", 2)
-
-    with open(SCRIPT, "r", encoding="utf-8") as f:
-        source = f.read()
-
-    try:
-        session = device.attach(target.pid)
+        for proc in device.enumerate_processes():
+            if proc.name.lower() == "pcfish.exe":
+                return proc.pid
     except Exception as exc:  # noqa: BLE001
-        fail(f"附加失败: {exc}", 3)
+        print(f"[!] 枚举进程失败: {exc}")
+    return None
 
+
+def attach_once(device, source, pid: int, watch: bool) -> None:
+    session = device.attach(pid)
     script = session.create_script(source)
 
     def on_message(message, data):
@@ -63,22 +54,78 @@ def main() -> None:
             print("[AutoGroup][error]", message.get("stack") or message.get("description"))
 
     script.on("message", on_message)
+    script.load()
 
-    try:
-        script.load()
-    except Exception as exc:  # noqa: BLE001
-        fail(f"加载脚本失败: {exc}", 4)
-
-    print(f"[*] 已附加到 PCFish.exe (PID {target.pid})。")
-    print("[*] 回到游戏：合成界面先放一条样板鱼，再点“自动添加”。")
+    print(f"[*] 已附加到 PCFish.exe (PID {pid})。")
+    print("[*] 合成界面先放一条样板鱼，再点“自动添加”。")
     print("[*] 按 Ctrl+C 退出（不会关闭游戏）。")
 
+    if not watch:
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\n[*] 正在断开...")
+            session.detach()
+        return
+
+    detached = threading.Event()
+
+    def on_detached(*args):
+        detached.set()
+
     try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\n[*] 正在断开...")
+        session.on("detached", on_detached)
+    except Exception:
+        pass
+
+    detached.wait()
+    try:
         session.detach()
+    except Exception:
+        pass
+    print("[*] 游戏已退出，继续等待下一次启动...")
+
+
+def main() -> None:
+    try:
+        import frida
+    except ImportError:
+        fail("缺少 frida。请先运行: python -m pip install frida", 1)
+
+    if not os.path.isfile(SCRIPT):
+        fail(f"找不到脚本: {SCRIPT}")
+
+    watch = "--watch" in sys.argv[1:]
+    with open(SCRIPT, "r", encoding="utf-8") as f:
+        source = f.read()
+
+    device = frida.get_local_device()
+
+    while True:
+        pid = find_pid(device)
+        if pid is None:
+            if not watch:
+                fail("未找到 PCFish.exe。请先启动游戏并进入鱼缸/主界面，再运行本脚本。", 2)
+            print("[*] 监视模式：等待 PCFish.exe 启动...")
+            time.sleep(2)
+            continue
+
+        try:
+            attach_once(device, source, pid, watch)
+        except KeyboardInterrupt:
+            print("\n[*] 已退出。")
+            return
+        except Exception as exc:  # noqa: BLE001
+            print(f"[!] 附加失败: {exc}")
+            try:
+                time.sleep(2)
+            except KeyboardInterrupt:
+                return
+
+        if not watch:
+            return
+        time.sleep(1)
 
 
 if __name__ == "__main__":

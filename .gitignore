@@ -33,3 +33,13 @@ script.json
 stringliteral.json
 
 
+
+# Local build payloads / dotnet outputs
+installer/payload/
+installer/payload.zip
+mods/**/bin/
+mods/**/obj/
+tools/interopgen/bin/
+tools/interopgen/obj/
+tools/interopgen/lib/
+

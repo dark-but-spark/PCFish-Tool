@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$OutDir = "dist"
 )
 
@@ -31,6 +31,7 @@ foreach ($file in @(
     Copy-Item -Path (Join-Path $root $file) -Destination $stage -Force
 }
 
+if (Test-Path (Join-Path $stage "tools\\interopgen")) { Remove-Item (Join-Path $stage "tools\\interopgen") -Recurse -Force }
 Get-ChildItem -Path $stage -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue |
     Remove-Item -Recurse -Force
 Get-ChildItem -Path $stage -Recurse -File -Filter "*.pyc" -ErrorAction SilentlyContinue |
@@ -44,3 +45,4 @@ $sums = Join-Path $outPath "SHA256SUMS.txt"
 
 Write-Host "Built: $zip"
 Get-Content $sums
+

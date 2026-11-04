@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>PCFishTool</AssemblyName>
+    <RootNamespace>PCFishTool</RootNamespace>
+    <GameDir Condition="'$(GameDir)' == ''">$(MSBuildThisFileDirectory)..\..\.dev\PC FISH</GameDir>
+    <InteropDir>$(GameDir)\MelonLoader\Il2CppAssemblies</InteropDir>
+    <MelonDir>$(GameDir)\MelonLoader\net6</MelonDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(InteropDir)\*.dll" />
+    <Reference Include="$(MelonDir)\MelonLoader.dll" />
+    <Reference Include="$(MelonDir)\0Harmony.dll" />
+    <Reference Include="$(MelonDir)\Il2CppInterop.Runtime.dll" />
+    <Reference Include="$(MelonDir)\Il2CppInterop.Common.dll" />
+  </ItemGroup>
+
+</Project>

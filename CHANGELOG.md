@@ -3,6 +3,17 @@
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 版本号唯一来源是仓库根目录的 [`VERSION`](VERSION) 文件。
 
+## [0.3.0-beta.1] - 2026-11-04
+
+### 变更
+
+- 从 Frida 外部注入切换为 **MelonLoader 0.7.3 + C# 插件**。
+- 安装器改为写入游戏目录：MelonLoader、.NET 6 portable runtime、预生成 Il2CppInterop、`Mods/PCFishTool.dll`。
+- 插件随游戏启动自动加载，不再需要运行额外工具或监视器。
+- 新增 `tools/interopgen`，用于生成 MelonLoader 的 Il2CppInterop 程序集。
+- 安装器自动写入 `GameAssemblyHash`，跳过 MelonLoader 自带生成器在本游戏上的卡死步骤。
+- 保留自动分组、结果动画跳过、机制文档、偏移表和存档分析。
+
 ## [0.2.0-beta.1] - 2026-11-04
 
 ### 新增
