@@ -1,8 +1,15 @@
-# PCFish Tool v0.3.0-beta.1
+# PCFish Tool v0.3.0-beta.2
 
 插件版公测：从 Frida 外部注入切换为 **MelonLoader 0.7.3 + C# 插件**。安装器直接写入游戏目录，游戏启动时自动加载，不再需要额外运行工具。
 
 > Beta 版本。安装器包含针对 PC FISH **1.6.2 / Unity 6000.0.76f1** 预生成的 interop 程序集；游戏更新后需要更新安装器。
+
+
+## 本版本重点
+
+- **默认安静启动**：安装器默认隐藏 MelonLoader 控制台、关闭插件日志，不再弹调试信息。
+- **安装器新增“显示 Debug 日志”复选框**（默认不勾选）：勾选后保留 MelonLoader 控制台并开启 `debug_log=true`，方便排查。
+- 修复了“每次启动都看到调试控制台”的体验问题。
 
 ## 为什么不是 BepInEx
 
@@ -28,7 +35,7 @@
 
 ## 安装
 
-1. 下载 `PCFishTool-Setup-v0.3.0-beta.1.exe`。
+1. 下载 `PCFishTool-Setup-v0.3.0-beta.2.exe`。
 2. 关闭正在运行的《PC FISH》。
 3. 双击安装器，确认游戏目录，点击“安装 / 更新”（需要管理员权限）。
 4. 启动游戏；插件自动加载。
@@ -37,16 +44,16 @@
 静默安装 / 卸载：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.1.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.1.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.2.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.2.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 ## 文件
 
 | 资产 | 说明 |
 | --- | --- |
-| `PCFishTool-Setup-v0.3.0-beta.1.exe` | 插件版安装器（推荐） |
-| `PCFish-Tool-v0.3.0-beta.1.zip` | 机制文档 / 存档分析 / 旧 Frida 脚本 |
+| `PCFishTool-Setup-v0.3.0-beta.2.exe` | 插件版安装器（推荐） |
+| `PCFish-Tool-v0.3.0-beta.2.zip` | 机制文档 / 存档分析 / 旧 Frida 脚本 |
 | `SHA256SUMS.txt` | 校验 |
 
 安装后游戏目录新增：
@@ -77,8 +84,8 @@ Mods/PCFishTool.dll
 ## 校验
 
 ```powershell
-Get-FileHash .\PCFishTool-Setup-v0.3.0-beta.1.exe -Algorithm SHA256
-Get-FileHash .\PCFish-Tool-v0.3.0-beta.1.zip -Algorithm SHA256
+Get-FileHash .\PCFishTool-Setup-v0.3.0-beta.2.exe -Algorithm SHA256
+Get-FileHash .\PCFish-Tool-v0.3.0-beta.2.zip -Algorithm SHA256
 ```
 
 ## 说明

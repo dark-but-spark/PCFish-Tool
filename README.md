@@ -69,11 +69,14 @@
 4. 启动游戏；MelonLoader 会自动加载插件。
 5. 合成界面先放一条样板鱼，再点“自动添加”；点“合成/繁育”后结果界面会立即出现。
 
+
+> 安装器默认隐藏 MelonLoader 控制台，也不打印插件日志。需要排查时，安装时勾选“显示 Debug 日志”，或之后把 `UserData\PCFishTool.cfg` 改为 `debug_log=true`，并将 `UserData\Loader.cfg` 的 `hide_console` 设为 `false`。
+
 静默安装 / 卸载（管理员终端）：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.1.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.1.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.2.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.2.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 安装内容：

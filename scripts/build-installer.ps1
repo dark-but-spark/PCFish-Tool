@@ -42,6 +42,8 @@ Copy-Item (Join-Path $GameDir "version.dll") (Join-Path $payloadDir "version.dll
 Copy-Item (Join-Path $GameDir "MelonLoader") (Join-Path $payloadDir "MelonLoader") -Recurse -Force
 Copy-Item (Join-Path $GameDir "dotnet") (Join-Path $payloadDir "dotnet") -Recurse -Force
 Copy-Item $modDll (Join-Path $payloadDir "Mods\PCFishTool.dll") -Force
+New-Item -ItemType Directory -Force -Path (Join-Path $payloadDir "UserData") | Out-Null
+Copy-Item (Join-Path $GameDir "UserData\Loader.cfg") (Join-Path $payloadDir "UserData\Loader.cfg") -Force
 
 # Trim generation caches / runtimes not needed for this IL2CPP build
 $trim = @(
@@ -96,3 +98,4 @@ foreach ($name in $assets) {
 }
 $lines | Set-Content -Path (Join-Path $outPath "SHA256SUMS.txt") -Encoding ASCII
 Get-Content (Join-Path $outPath "SHA256SUMS.txt")
+

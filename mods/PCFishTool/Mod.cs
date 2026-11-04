@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using HarmonyLib;
 using Il2Cpp;
 using Il2CppNN.PF.Core.Network;
@@ -9,8 +10,9 @@ using Il2CppNN.PF.UI.Breed;
 using Il2CppNN.PF.UI.Common;
 using Il2CppNN.PF.UI.Merge;
 using MelonLoader;
+using MelonLoader.Utils;
 
-[assembly: MelonInfo(typeof(PCFishTool.PCFishToolMod), "PCFish Tool", "0.3.0-beta.1", "dark-but-spark")]
+[assembly: MelonInfo(typeof(PCFishTool.PCFishToolMod), "PCFish Tool", "0.3.0-beta.2", "dark-but-spark")]
 [assembly: MelonGame("NANOO COMPANY Inc.", "PCFish")]
 
 namespace PCFishTool
@@ -19,9 +21,31 @@ namespace PCFishTool
     {
         public override void OnInitializeMelon()
         {
-            LoggerInstance.Msg("PCFish Tool loaded.");
-            LoggerInstance.Msg("Auto-group: sample fish first, then Auto Add.");
-            LoggerInstance.Msg("Result FX skip: enabled.");
+            try
+            {
+                string config = Path.Combine(MelonEnvironment.GameRootDirectory, "UserData", "PCFishTool.cfg");
+                if (File.Exists(config))
+                {
+                    foreach (string line in File.ReadAllLines(config))
+                    {
+                        if (line.Trim().Equals("debug_log=true", StringComparison.OrdinalIgnoreCase))
+                        {
+                            State.DebugLog = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            if (State.DebugLog)
+            {
+                LoggerInstance.Msg("PCFish Tool loaded (debug log enabled).");
+                LoggerInstance.Msg("Auto-group: sample fish first, then Auto Add.");
+                LoggerInstance.Msg("Result FX skip: enabled.");
+            }
             HarmonyInstance.PatchAll();
         }
     }
@@ -31,6 +55,7 @@ namespace PCFishTool
         internal static UIMerge CurrentMerge;
         internal static string SampleId;
         internal static bool InAutoParent;
+        internal static bool DebugLog;
     }
 
     [HarmonyPatch(typeof(UIMerge), "AutoParent")]
@@ -134,7 +159,7 @@ namespace PCFishTool
                     __result.RemoveAt(__result.Count - 1);
 
                 FishModel probe = chosen[0];
-                MelonLogger.Msg("[PCFishTool] pick L" + probe.Level + " G" + probe.Grade + " x" + chosen.Count +
+                if (State.DebugLog) MelonLogger.Msg("[PCFishTool] pick L" + probe.Level + " G" + probe.Grade + " x" + chosen.Count +
                     (chosen.Count < 10 ? " (less than 10; Merge disabled)" : ""));
             }
             catch (Exception ex)
@@ -152,7 +177,7 @@ namespace PCFishTool
             if (fx.onFinishFx == null) return;
             fx.FinishFx();
             fx.onFinishFx = null;
-            MelonLogger.Msg("[PCFishTool] skip result FX (" + tag + ")");
+            if (State.DebugLog) MelonLogger.Msg("[PCFishTool] skip result FX (" + tag + ")");
         }
     }
 
@@ -195,4 +220,7 @@ namespace PCFishTool
         }
     }
 }
+
+
+
 

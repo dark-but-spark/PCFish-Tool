@@ -3,6 +3,15 @@
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 版本号唯一来源是仓库根目录的 [`VERSION`](VERSION) 文件。
 
+## [0.3.0-beta.2] - 2026-11-04
+
+### 变更
+
+- 默认隐藏 MelonLoader 控制台、关闭插件日志，启动不再显示调试信息。
+- 安装器新增“显示 Debug 日志”复选框（默认不勾选）；勾选后 `hide_console=false`、`debug_log=true`。
+- 支持 `--debug-log` 静默参数。
+- 安装器写入 `UserData/Loader.cfg` 与 `UserData/PCFishTool.cfg`，控制控制台和插件日志。
+
 ## [0.3.0-beta.1] - 2026-11-04
 
 ### 变更

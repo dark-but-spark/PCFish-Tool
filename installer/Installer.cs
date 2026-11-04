@@ -27,6 +27,7 @@ namespace PCFishToolSetup
             bool uninstall = false;
             bool force = false;
             bool launch = false;
+            bool debugLog = false;
             string gameDir = null;
 
             foreach (string raw in args)
@@ -36,6 +37,7 @@ namespace PCFishToolSetup
                 else if (a == "--uninstall") uninstall = true;
                 else if (a == "--force") force = true;
                 else if (a == "--launch") launch = true;
+                else if (a == "--debug-log") debugLog = true;
                 else if (a.StartsWith("--dir=", StringComparison.OrdinalIgnoreCase)) gameDir = a.Substring(6).Trim('"');
             }
 
@@ -52,7 +54,7 @@ namespace PCFishToolSetup
                 if (silent)
                 {
                     if (gameDir == null) gameDir = DetectGame();
-                    Install(gameDir, force, launch);
+                    Install(gameDir, force, launch, debugLog);
                     Environment.ExitCode = 0;
                     return;
                 }
@@ -76,7 +78,7 @@ namespace PCFishToolSetup
             Application.Run(new SetupForm(gameDir ?? DetectGame()));
         }
 
-        internal static void Install(string gameDir, bool force, bool launch)
+        internal static void Install(string gameDir, bool force, bool launch, bool debugLog)
         {
             if (string.IsNullOrEmpty(gameDir) || !File.Exists(Path.Combine(gameDir, "PCFish.exe")))
                 throw new InvalidOperationException("请选择包含 PCFish.exe 的《PC FISH》游戏目录。");
@@ -124,6 +126,8 @@ namespace PCFishToolSetup
                 string modsDir = Path.Combine(gameDir, "Mods");
                 Directory.CreateDirectory(modsDir);
                 CopyFile(Path.Combine(tempDir, "Mods", "PCFishTool.dll"), Path.Combine(modsDir, "PCFishTool.dll"));
+                CopyDirectory(Path.Combine(tempDir, "UserData"), Path.Combine(gameDir, "UserData"));
+                WriteUserConfig(gameDir, debugLog);
 
                 UpdateConfigHash(gameDir);
 
@@ -152,6 +156,37 @@ namespace PCFishToolSetup
             }
         }
 
+        private static void WriteUserConfig(string gameDir, bool debugLog)
+        {
+            string userData = Path.Combine(gameDir, "UserData");
+            Directory.CreateDirectory(userData);
+            string loader = Path.Combine(userData, "Loader.cfg");
+            if (!File.Exists(loader))
+            {
+                string template = "[loader]" + Environment.NewLine + "debug_mode = false" + Environment.NewLine + Environment.NewLine + "[console]" + Environment.NewLine + "hide_warnings = false" + Environment.NewLine + "hide_console = false" + Environment.NewLine;
+                File.WriteAllText(loader, template, new UTF8Encoding(false));
+            }
+            List<string> lines = new List<string>(File.ReadAllLines(loader));
+            SetKey(lines, "hide_console", debugLog ? "false" : "true");
+            SetKey(lines, "hide_warnings", debugLog ? "false" : "true");
+            SetKey(lines, "debug_mode", "false");
+            File.WriteAllLines(loader, lines.ToArray(), new UTF8Encoding(false));
+            File.WriteAllText(Path.Combine(userData, "PCFishTool.cfg"), "debug_log=" + (debugLog ? "true" : "false") + Environment.NewLine, new UTF8Encoding(false));
+        }
+        private static void SetKey(List<string> lines, string key, string value)
+        {
+            for (int i = 0; i < lines.Count; i++)
+            {
+                string t = lines[i].TrimStart();
+                if (t.StartsWith(key + " ", StringComparison.OrdinalIgnoreCase) || t.StartsWith(key + "=", StringComparison.OrdinalIgnoreCase))
+                {
+                    int eq = lines[i].IndexOf("=");
+                    if (eq >= 0) lines[i] = lines[i].Substring(0, eq) + "= " + value;
+                    return;
+                }
+            }
+            lines.Add(key + " = " + value);
+        }
         private static void UpdateConfigHash(string gameDir)
         {
             string config = Path.Combine(gameDir, "MelonLoader", "Dependencies", "Il2CppAssemblyGenerator", "Config.cfg");
@@ -321,11 +356,12 @@ namespace PCFishToolSetup
         private readonly TextBox _gamePath;
         private readonly Label _status;
         private readonly CheckBox _launch;
+        private readonly CheckBox _debugLog;
 
         public SetupForm(string detectedGame)
         {
             Text = Program.ProductName + " Setup " + Program.Version;
-            ClientSize = new Size(660, 340);
+            ClientSize = new Size(660, 380);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
@@ -385,24 +421,31 @@ namespace PCFishToolSetup
             _launch.Checked = true;
             Controls.Add(_launch);
 
+            _debugLog = new CheckBox();
+            _debugLog.Text = "显示 Debug 日志（MelonLoader 控制台，默认关闭）";
+            _debugLog.Location = new Point(22, 214);
+            _debugLog.Size = new Size(480, 24);
+            _debugLog.Checked = false;
+            Controls.Add(_debugLog);
+
             Button install = new Button();
             install.Text = "安装 / 更新";
-            install.Location = new Point(22, 220);
+            install.Location = new Point(22, 248);
             install.Size = new Size(130, 36);
             install.Click += delegate { DoInstall(); };
             Controls.Add(install);
 
             Button uninstall = new Button();
             uninstall.Text = "卸载";
-            uninstall.Location = new Point(164, 220);
+            uninstall.Location = new Point(164, 248);
             uninstall.Size = new Size(100, 36);
             uninstall.Click += delegate { DoUninstall(); };
             Controls.Add(uninstall);
 
             _status = new Label();
             _status.Text = "安装到游戏目录；不会动存档。";
-            _status.Location = new Point(22, 272);
-            _status.Size = new Size(610, 48);
+            _status.Location = new Point(22, 300);
+            _status.Size = new Size(610, 56);
             _status.ForeColor = Color.DimGray;
             Controls.Add(_status);
         }
@@ -429,7 +472,7 @@ namespace PCFishToolSetup
                 }
 
                 Cursor.Current = Cursors.WaitCursor;
-                Program.Install(game, force, false);
+                Program.Install(game, force, false, _debugLog.Checked);
                 Cursor.Current = Cursors.Default;
                 _status.Text = "安装完成。启动游戏即可自动加载插件。";
                 if (_launch.Checked)
@@ -462,4 +505,6 @@ namespace PCFishToolSetup
         }
     }
 }
+
+
 
