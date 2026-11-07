@@ -29,13 +29,36 @@
 
 > 安装器默认隐藏 MelonLoader 控制台并关闭插件日志。需要排查时，安装时勾选“显示 Debug 日志”，或修改 `UserData\Loader.cfg` 的 `hide_console=false` 和 `UserData\PCFishTool.cfg` 的 `debug_log=true`。
 
+
+### 自动繁育
+
+安装器默认勾选“启用自动繁育”，并写入：
+
+```ini
+auto_breed=true
+auto_breed_first_delay_seconds=60
+auto_breed_mean_minutes=20
+auto_breed_sigma_minutes=4
+auto_breed_min_minutes=10
+auto_breed_max_minutes=30
+auto_breed_interval_seconds=10
+auto_breed_interval_sigma_seconds=2
+auto_breed_interval_min_seconds=5
+auto_breed_interval_max_seconds=20
+```
+
+- 首次检查在 60 秒后，之后按正态分布（均值 20、σ=4）随机，限制 10–30 分钟，最长不超过 30 分钟。
+- 有繁育次数时自动使用；只选同 `Level` + 同 `Grade`，优先高 `Grade`，其次高 `Level`；组内选繁育次数最多和最少的两条鱼。
+- 连续繁育间隔 10 秒（正态，σ=2，限制 5–20 秒），用完次数后等待下一次检查。
+- 关闭：取消安装器复选框，或把 `UserData\PCFishTool.cfg` 的 `auto_breed` 改为 `false`。
+
 ### 静默安装 / 卸载
 
 请在管理员 PowerShell 中运行：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.2.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.2.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.3.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.3.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 如果已有 `version.dll` / `MelonLoader`，安装器会提示；确认后备份到 `PCFishTool_Backup`。
@@ -89,7 +112,7 @@ Beta 版未签名，SmartScreen 提示属正常现象；可核对 Release 中的
 使用安装器的“卸载”，或：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.2.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.3.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 ## 开发构建

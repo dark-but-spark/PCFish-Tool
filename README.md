@@ -24,6 +24,7 @@
 | **EXE 安装器** | 安装 MelonLoader 0.7.3 + .NET 6 运行时 + 预生成的 Il2CppInterop 程序集 + `Mods/PCFishTool.dll` 到游戏目录。需要管理员权限。 |
 | **MelonLoader 插件** | 游戏启动时自动加载，不需要再运行额外工具；自动分组和结果动画跳过都在插件里。 |
 | **自动分组** | 标准合成点“自动添加”时，只选 **同 `Level`（稀有度）+ 同 `Grade`（星级）** 的鱼；先放一条样板鱼即可锁定它的星级/稀有度。 |
+| **自动繁育** | 每 ~20 分钟（正态分布，最长 30 分钟）检查繁育次数；有次数时自动选择 **同稀有度 + 同星级** 的可繁育鱼，优先高星级 / 高稀有度，组内取繁育次数最多和最少的鱼。 |
 | **结果动画跳过** | 服务器响应成功后立即调用 `UIFishResultFx.FinishFx`，不再等固定时长的结果动画。 |
 | **机制文档** | `docs/ANALYSIS.md`：繁育 / 合成是本地还是云、稀有度权重表、星级来源、自动添加与动画流程。 |
 | **偏移表** | `docs/OFFSETS.md`：当前版本关键 RVA / 字段偏移，便于游戏更新后校准。 |
@@ -36,6 +37,13 @@
   - 先手动放 1 条目标鱼 → 自动补满同 `Level`、同 `Grade` 的鱼。
   - 没有样板鱼时，选数量最多的 `(Level, Grade)` 分组；没有 `>=10` 的组时使用最大组（Merge 可能保持禁用）。
   - 只影响材料选择，不修改存档；合成结果仍由服务器返回。
+
+- **自动繁育（默认开启）**
+  - 每 ~20 分钟检查一次，间隔按正态分布随机（均值 20、σ=4，限制 10–30 分钟，最长不超过 30 分钟）。
+  - 有繁育次数时自动使用；每次从 **同 `Level` + 同 `Grade`** 的可繁育鱼中选择，优先 **高 `Grade`（星级）**，再按 **高 `Level`（稀有度）**。
+  - 组内选择 **繁育次数最多** 和 **繁育次数最少** 的两条鱼；用完后按 10 秒（正态分布，σ=2，5–20 秒）的人类节奏继续，直到次数用完。
+  - 首次检查默认 60 秒后；可在 `UserData\PCFishTool.cfg` 调整 `auto_breed`、`auto_breed_first_delay_seconds`、检查间隔 / 繁育间隔的均值 / σ / 上下限。
+  - 安装器默认勾选“启用自动繁育”；取消勾选即关闭。
 - **结果动画跳过**
   - 服务器响应成功后直接结束结果动画，结果界面立即出现。
   - 仅在 `NetworkResult.Success` 时生效；服务器维护 / 网络错误不会跳过。
@@ -75,8 +83,8 @@
 静默安装 / 卸载（管理员终端）：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.2.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.2.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.3.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.3.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 安装内容：

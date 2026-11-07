@@ -28,6 +28,7 @@ namespace PCFishToolSetup
             bool force = false;
             bool launch = false;
             bool debugLog = false;
+            bool autoBreed = true;
             string gameDir = null;
 
             foreach (string raw in args)
@@ -38,6 +39,7 @@ namespace PCFishToolSetup
                 else if (a == "--force") force = true;
                 else if (a == "--launch") launch = true;
                 else if (a == "--debug-log") debugLog = true;
+                else if (a == "--no-auto-breed") autoBreed = false;
                 else if (a.StartsWith("--dir=", StringComparison.OrdinalIgnoreCase)) gameDir = a.Substring(6).Trim('"');
             }
 
@@ -54,7 +56,7 @@ namespace PCFishToolSetup
                 if (silent)
                 {
                     if (gameDir == null) gameDir = DetectGame();
-                    Install(gameDir, force, launch, debugLog);
+                    Install(gameDir, force, launch, debugLog, autoBreed);
                     Environment.ExitCode = 0;
                     return;
                 }
@@ -78,7 +80,7 @@ namespace PCFishToolSetup
             Application.Run(new SetupForm(gameDir ?? DetectGame()));
         }
 
-        internal static void Install(string gameDir, bool force, bool launch, bool debugLog)
+        internal static void Install(string gameDir, bool force, bool launch, bool debugLog, bool autoBreed)
         {
             if (string.IsNullOrEmpty(gameDir) || !File.Exists(Path.Combine(gameDir, "PCFish.exe")))
                 throw new InvalidOperationException("请选择包含 PCFish.exe 的《PC FISH》游戏目录。");
@@ -127,7 +129,7 @@ namespace PCFishToolSetup
                 Directory.CreateDirectory(modsDir);
                 CopyFile(Path.Combine(tempDir, "Mods", "PCFishTool.dll"), Path.Combine(modsDir, "PCFishTool.dll"));
                 CopyDirectory(Path.Combine(tempDir, "UserData"), Path.Combine(gameDir, "UserData"));
-                WriteUserConfig(gameDir, debugLog);
+                WriteUserConfig(gameDir, debugLog, autoBreed);
 
                 UpdateConfigHash(gameDir);
 
@@ -156,7 +158,7 @@ namespace PCFishToolSetup
             }
         }
 
-        private static void WriteUserConfig(string gameDir, bool debugLog)
+        private static void WriteUserConfig(string gameDir, bool debugLog, bool autoBreed)
         {
             string userData = Path.Combine(gameDir, "UserData");
             Directory.CreateDirectory(userData);
@@ -171,7 +173,18 @@ namespace PCFishToolSetup
             SetKey(lines, "hide_warnings", debugLog ? "false" : "true");
             SetKey(lines, "debug_mode", "false");
             File.WriteAllLines(loader, lines.ToArray(), new UTF8Encoding(false));
-            File.WriteAllText(Path.Combine(userData, "PCFishTool.cfg"), "debug_log=" + (debugLog ? "true" : "false") + Environment.NewLine, new UTF8Encoding(false));
+            string cfg = "debug_log=" + (debugLog ? "true" : "false") + Environment.NewLine +
+                "auto_breed=" + (autoBreed ? "true" : "false") + Environment.NewLine +
+                "auto_breed_first_delay_seconds=60" + Environment.NewLine +
+                "auto_breed_mean_minutes=20" + Environment.NewLine +
+                "auto_breed_sigma_minutes=4" + Environment.NewLine +
+                "auto_breed_min_minutes=10" + Environment.NewLine +
+                "auto_breed_max_minutes=30" + Environment.NewLine +
+                "auto_breed_interval_seconds=10" + Environment.NewLine +
+                "auto_breed_interval_sigma_seconds=2" + Environment.NewLine +
+                "auto_breed_interval_min_seconds=5" + Environment.NewLine +
+                "auto_breed_interval_max_seconds=20" + Environment.NewLine;
+            File.WriteAllText(Path.Combine(userData, "PCFishTool.cfg"), cfg, new UTF8Encoding(false));
         }
         private static void SetKey(List<string> lines, string key, string value)
         {
@@ -357,11 +370,12 @@ namespace PCFishToolSetup
         private readonly Label _status;
         private readonly CheckBox _launch;
         private readonly CheckBox _debugLog;
+        private readonly CheckBox _autoBreed;
 
         public SetupForm(string detectedGame)
         {
             Text = Program.ProductName + " Setup " + Program.Version;
-            ClientSize = new Size(660, 380);
+            ClientSize = new Size(660, 420);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
@@ -428,24 +442,31 @@ namespace PCFishToolSetup
             _debugLog.Checked = false;
             Controls.Add(_debugLog);
 
+            _autoBreed = new CheckBox();
+            _autoBreed.Text = "启用自动繁育（默认开启；20 分钟检查一次）";
+            _autoBreed.Location = new Point(22, 242);
+            _autoBreed.Size = new Size(480, 24);
+            _autoBreed.Checked = true;
+            Controls.Add(_autoBreed);
+
             Button install = new Button();
             install.Text = "安装 / 更新";
-            install.Location = new Point(22, 248);
+            install.Location = new Point(22, 280);
             install.Size = new Size(130, 36);
             install.Click += delegate { DoInstall(); };
             Controls.Add(install);
 
             Button uninstall = new Button();
             uninstall.Text = "卸载";
-            uninstall.Location = new Point(164, 248);
+            uninstall.Location = new Point(164, 280);
             uninstall.Size = new Size(100, 36);
             uninstall.Click += delegate { DoUninstall(); };
             Controls.Add(uninstall);
 
             _status = new Label();
             _status.Text = "安装到游戏目录；不会动存档。";
-            _status.Location = new Point(22, 300);
-            _status.Size = new Size(610, 56);
+            _status.Location = new Point(22, 332);
+            _status.Size = new Size(610, 64);
             _status.ForeColor = Color.DimGray;
             Controls.Add(_status);
         }
@@ -472,7 +493,7 @@ namespace PCFishToolSetup
                 }
 
                 Cursor.Current = Cursors.WaitCursor;
-                Program.Install(game, force, false, _debugLog.Checked);
+                Program.Install(game, force, false, _debugLog.Checked, _autoBreed.Checked);
                 Cursor.Current = Cursors.Default;
                 _status.Text = "安装完成。启动游戏即可自动加载插件。";
                 if (_launch.Checked)
