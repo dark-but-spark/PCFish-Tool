@@ -12,7 +12,7 @@ using Il2CppNN.PF.UI.Merge;
 using MelonLoader;
 using MelonLoader.Utils;
 
-[assembly: MelonInfo(typeof(PCFishTool.PCFishToolMod), "PCFish Tool", "0.3.0-beta.3", "dark-but-spark")]
+[assembly: MelonInfo(typeof(PCFishTool.PCFishToolMod), "PCFish Tool", "0.3.0-beta.4", "dark-but-spark")]
 [assembly: MelonGame("NANOO COMPANY Inc.", "PCFish")]
 
 namespace PCFishTool
@@ -227,6 +227,7 @@ namespace PCFishTool
         }
     }
 }
+
 
 
 

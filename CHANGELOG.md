@@ -3,7 +3,7 @@
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 版本号唯一来源是仓库根目录的 [`VERSION`](VERSION) 文件。
 
-## [0.3.0-beta.3] - 2026-11-04
+## [0.3.0-beta.4] - 2026-11-04
 
 ### 新增
 
@@ -53,3 +53,12 @@
 - 机制文档：云端接口、稀有度权重表、星级来源、自动添加过滤与顺序。
 - 偏移表、安装 / 使用文档、一键启动脚本。
 - GitHub Actions 打包 / 发布流程、`SHA256SUMS.txt` 校验。
+
+## [0.3.0-beta.4] - 2026-11-13
+
+### 修复
+
+- 适配 PC FISH 1.7.0（Unity 6000.0.76f1）：重新生成 Il2CppInterop 程序集。
+- 修复游戏小更新后繁育闪退：旧 1.6.2 interop 的 UIBreed 方法 token 已偏移，调用 `Breed`/`SetParent` 会落到错误方法。
+- 安装器新增 GameAssembly SHA512 校验；游戏版本不匹配时拒绝安装并提示下载对应版本，避免装入过期 interop。
+

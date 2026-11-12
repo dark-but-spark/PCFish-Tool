@@ -66,7 +66,7 @@
 ### 系统要求
 
 - Windows 10 / 11（x64）
-- Steam 版《PC FISH》1.6.2（Unity 6000.0.76f1）
+- Steam 版《PC FISH》1.7.0（Unity 6000.0.76f1）
 - 管理员权限（安装器要写入 `C:\Program Files (x86)\Steam\steamapps\common\PC FISH`）
 
 ### 安装
@@ -83,8 +83,8 @@
 静默安装 / 卸载（管理员终端）：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.3.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.3.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.4.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.4.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 安装内容：
@@ -140,7 +140,7 @@ dotnet build mods/PCFishTool -c Release -p:GameDir="D:\path\to\PC FISH"
 
 ## 已知限制
 
-- 安装器包含针对 **PC FISH 1.6.2 / Unity 6000.0.76f1** 预生成的 interop 程序集；游戏更新后需要重新生成并更新安装器。
+- 安装器包含针对 **PC FISH 1.7.0 / Unity 6000.0.76f1** 预生成的 interop 程序集；游戏更新后需要重新生成并更新安装器。
 - 安装器未签名，Windows SmartScreen 可能提示“未知发布者”。
 - 安装器需要管理员权限；会写入游戏目录。
 - 如果游戏目录已有其它 MelonLoader 插件，覆盖前会备份，但不同插件可能冲突。

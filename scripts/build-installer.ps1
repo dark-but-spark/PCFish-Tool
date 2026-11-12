@@ -65,6 +65,8 @@ Write-Host ("Payload: {0:N1} MB" -f ((Get-Item $payloadZip).Length / 1MB))
 Write-Host "Generating installer source..."
 $src = Get-Content -Path $installerSource -Raw -Encoding UTF8
 $src = $src.Replace("__VERSION__", $version)
+$gameHash = (Get-FileHash (Join-Path $GameDir "GameAssembly.dll") -Algorithm SHA512).Hash
+$src = $src.Replace("__GAMEASSEMBLY_SHA512__", $gameHash)
 Set-Content -Path $installerGenerated -Value $src -Encoding UTF8
 
 $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
@@ -98,4 +100,5 @@ foreach ($name in $assets) {
 }
 $lines | Set-Content -Path (Join-Path $outPath "SHA256SUMS.txt") -Encoding ASCII
 Get-Content (Join-Path $outPath "SHA256SUMS.txt")
+
 

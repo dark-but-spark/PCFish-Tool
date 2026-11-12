@@ -1,9 +1,16 @@
-# PCFish Tool v0.3.0-beta.3
+# PCFish Tool v0.3.0-beta.4
 
 插件版公测：从 Frida 外部注入切换为 **MelonLoader 0.7.3 + C# 插件**。安装器直接写入游戏目录，游戏启动时自动加载，不再需要额外运行工具。
 
-> Beta 版本。安装器包含针对 PC FISH **1.6.2 / Unity 6000.0.76f1** 预生成的 interop 程序集；游戏更新后需要更新安装器。
+> Beta 版本。安装器包含针对 PC FISH **1.7.0 / Unity 6000.0.76f1** 预生成的 interop 程序集；游戏更新后需要更新安装器。
 
+
+## 兼容性修复（重要）
+
+- 游戏更新到 **1.7.0** 后，旧安装器里的 **1.6.2 预生成 interop** 已过期，`UIBreed` 方法 token/字段偏移变化，导致繁育时直接闪退。
+- 本版本重新生成 1.7.0 interop，并重新编译插件；繁育/自动繁育恢复正常。
+- 安装器新增 **GameAssembly SHA512 校验**：游戏版本不匹配时拒绝安装，避免再次装入过期 interop。
+- 如果仍使用旧安装器，请先卸载旧 MelonLoader，再安装本版本。
 
 ## 本版本重点
 
@@ -38,7 +45,7 @@
 
 ## 安装
 
-1. 下载 `PCFishTool-Setup-v0.3.0-beta.3.exe`。
+1. 下载 `PCFishTool-Setup-v0.3.0-beta.4.exe`。
 2. 关闭正在运行的《PC FISH》。
 3. 双击安装器，确认游戏目录，点击“安装 / 更新”（需要管理员权限）。
 4. 启动游戏；插件自动加载。
@@ -47,16 +54,16 @@
 静默安装 / 卸载：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.3.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.3.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.4.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.4.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 ## 文件
 
 | 资产 | 说明 |
 | --- | --- |
-| `PCFishTool-Setup-v0.3.0-beta.3.exe` | 插件版安装器（推荐） |
-| `PCFish-Tool-v0.3.0-beta.3.zip` | 机制文档 / 存档分析 / 旧 Frida 脚本 |
+| `PCFishTool-Setup-v0.3.0-beta.4.exe` | 插件版安装器（推荐） |
+| `PCFish-Tool-v0.3.0-beta.4.zip` | 机制文档 / 存档分析 / 旧 Frida 脚本 |
 | `SHA256SUMS.txt` | 校验 |
 
 安装后游戏目录新增：
@@ -70,7 +77,7 @@ Mods/PCFishTool.dll
 
 ## 已验证
 
-- MelonLoader 0.7.3 在 PC FISH 1.6.2 / Unity 6000.0.76f1 上成功加载。
+- MelonLoader 0.7.3 在 PC FISH 1.7.0 / Unity 6000.0.76f1 上成功加载。
 - Il2CppInterop 程序集生成成功（117 个，含 `Assembly-CSharp.dll`）。
 - `PCFishTool.dll` 被 MelonLoader 加载，日志输出 `PCFish Tool loaded`。
 - 安装器静默安装 / 卸载在测试副本和 Steam 游戏目录上验证通过。
@@ -87,8 +94,8 @@ Mods/PCFishTool.dll
 ## 校验
 
 ```powershell
-Get-FileHash .\PCFishTool-Setup-v0.3.0-beta.3.exe -Algorithm SHA256
-Get-FileHash .\PCFish-Tool-v0.3.0-beta.3.zip -Algorithm SHA256
+Get-FileHash .\PCFishTool-Setup-v0.3.0-beta.4.exe -Algorithm SHA256
+Get-FileHash .\PCFish-Tool-v0.3.0-beta.4.zip -Algorithm SHA256
 ```
 
 ## 说明

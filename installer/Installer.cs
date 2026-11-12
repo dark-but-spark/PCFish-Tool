@@ -17,6 +17,7 @@ namespace PCFishToolSetup
     {
         internal const string ProductName = "PCFish Tool";
         internal const string Version = "__VERSION__";
+        internal const string TargetGameAssemblySha512 = "__GAMEASSEMBLY_SHA512__";
         internal static readonly string BackupDirName = "PCFishTool_Backup";
         internal static readonly string MarkerName = "PCFishTool.installed";
 
@@ -86,6 +87,18 @@ namespace PCFishToolSetup
                 throw new InvalidOperationException("请选择包含 PCFish.exe 的《PC FISH》游戏目录。");
             if (!File.Exists(Path.Combine(gameDir, "GameAssembly.dll")))
                 throw new InvalidOperationException("该目录缺少 GameAssembly.dll，确认是 IL2CPP 版《PC FISH》。");
+
+            string expectedHash = TargetGameAssemblySha512;
+            if (!string.IsNullOrEmpty(expectedHash) && !expectedHash.StartsWith("__"))
+            {
+                string actualHash = ComputeSha512(Path.Combine(gameDir, "GameAssembly.dll"));
+                if (!actualHash.Equals(expectedHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException(
+                        "Game version does not match this installer (GameAssembly hash mismatch).\n" +
+                        "This installer contains interop for PC FISH 1.7.0; download the installer for your game version.");
+                }
+            }
 
             string versionFile = Path.Combine(gameDir, "version.dll");
             string melonDir = Path.Combine(gameDir, "MelonLoader");
@@ -200,6 +213,15 @@ namespace PCFishToolSetup
             }
             lines.Add(key + " = " + value);
         }
+        private static string ComputeSha512(string path)
+        {
+            using (SHA512 sha = SHA512.Create())
+            using (FileStream stream = File.OpenRead(path))
+            {
+                return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
+            }
+        }
+
         private static void UpdateConfigHash(string gameDir)
         {
             string config = Path.Combine(gameDir, "MelonLoader", "Dependencies", "Il2CppAssemblyGenerator", "Config.cfg");

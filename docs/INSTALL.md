@@ -3,7 +3,7 @@
 ## 系统要求
 
 - Windows 10 / 11（x64）
-- Steam 版《PC FISH》1.6.2（Unity 6000.0.76f1）
+- Steam 版《PC FISH》1.7.0（Unity 6000.0.76f1）
 - 管理员权限（安装器写入游戏目录）
 
 ## 安装（推荐）
@@ -57,8 +57,8 @@ auto_breed_interval_max_seconds=20
 请在管理员 PowerShell 中运行：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.3.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.3.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.4.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.4.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 如果已有 `version.dll` / `MelonLoader`，安装器会提示；确认后备份到 `PCFishTool_Backup`。
@@ -112,7 +112,7 @@ Beta 版未签名，SmartScreen 提示属正常现象；可核对 Release 中的
 使用安装器的“卸载”，或：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.3.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.4.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 ## 开发构建
