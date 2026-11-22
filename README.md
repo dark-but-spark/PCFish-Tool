@@ -43,6 +43,7 @@
   - 有繁育次数时自动使用；每次从 **同 `Level` + 同 `Grade`** 的可繁育鱼中选择，优先 **高 `Grade`（星级）**，再按 **高 `Level`（稀有度）**。
   - 组内选择 **繁育次数最多** 和 **繁育次数最少** 的两条鱼；用完后按 10 秒（正态分布，σ=2，5–20 秒）的人类节奏继续，直到次数用完。
   - 首次检查默认 60 秒后；可在 `UserData\PCFishTool.cfg` 调整 `auto_breed`、`auto_breed_first_delay_seconds`、检查间隔 / 繁育间隔的均值 / σ / 上下限。
+  - 默认只繁育 **1–3 星** 的鱼，不繁育四星及以上；需要放开时把 `UserData\PCFishTool.cfg` 的 `auto_breed_max_grade` 改为 `5`。
   - 安装器默认勾选“启用自动繁育”；取消勾选即关闭。
 - **结果动画跳过**
   - 服务器响应成功后直接结束结果动画，结果界面立即出现。
@@ -83,8 +84,8 @@
 静默安装 / 卸载（管理员终端）：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.4.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.4.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.5.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.5.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 安装内容：

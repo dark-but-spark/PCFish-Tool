@@ -193,6 +193,7 @@ namespace PCFishToolSetup
                 "auto_breed_sigma_minutes=4" + Environment.NewLine +
                 "auto_breed_min_minutes=10" + Environment.NewLine +
                 "auto_breed_max_minutes=30" + Environment.NewLine +
+                "auto_breed_max_grade=3" + Environment.NewLine +
                 "auto_breed_interval_seconds=10" + Environment.NewLine +
                 "auto_breed_interval_sigma_seconds=2" + Environment.NewLine +
                 "auto_breed_interval_min_seconds=5" + Environment.NewLine +

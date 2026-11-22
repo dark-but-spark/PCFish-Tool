@@ -21,6 +21,7 @@ namespace PCFishTool
         internal static float SigmaMinutes = 4f;
         internal static float MinMinutes = 10f;
         internal static float MaxMinutes = 30f;
+        internal static int MaxGrade = 3;
         internal static float IntervalSeconds = 10f;
         internal static float IntervalSigmaSeconds = 2f;
         internal static float IntervalMinSeconds = 5f;
@@ -81,6 +82,11 @@ namespace PCFishTool
                         MinMinutes = ParseFloat(value, MinMinutes);
                     else if (key.Equals("auto_breed_max_minutes", StringComparison.OrdinalIgnoreCase))
                         MaxMinutes = ParseFloat(value, MaxMinutes);
+                    else if (key.Equals("auto_breed_max_grade", StringComparison.OrdinalIgnoreCase))
+                    {
+                        int grade;
+                        if (int.TryParse(value, out grade)) MaxGrade = Math.Max(1, Math.Min(5, grade));
+                    }
                     else if (key.Equals("auto_breed_interval_seconds", StringComparison.OrdinalIgnoreCase))
                         IntervalSeconds = ParseFloat(value, IntervalSeconds);
                     else if (key.Equals("auto_breed_interval_sigma_seconds", StringComparison.OrdinalIgnoreCase))
@@ -418,6 +424,7 @@ namespace PCFishTool
         private static bool IsBreedable(FishModel fish)
         {
             if (fish == null) return false;
+            if (fish.Grade > MaxGrade) return false;
             if (fish.BreedCount <= 0) return false;
             if (fish.IsLocked) return false;
             if (fish.IsPlaced) return false;

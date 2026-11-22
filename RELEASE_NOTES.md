@@ -1,4 +1,4 @@
-# PCFish Tool v0.3.0-beta.4
+# PCFish Tool v0.3.0-beta.5
 
 插件版公测：从 Frida 外部注入切换为 **MelonLoader 0.7.3 + C# 插件**。安装器直接写入游戏目录，游戏启动时自动加载，不再需要额外运行工具。
 
@@ -19,6 +19,7 @@
 - **人性化节奏**：首次 60 秒后检查，之后 20 分钟均值、σ=4、限制 10–30 分钟；连续繁育间隔 10 秒（正态，σ=2，限制 5–20 秒），用完次数后等待下一次检查。
 - **默认安静启动**：安装器默认隐藏 MelonLoader 控制台、关闭插件日志，不再弹调试信息。
 - **安装器新增“显示 Debug 日志”复选框**（默认不勾选）：勾选后保留 MelonLoader 控制台并开启 `debug_log=true`，方便排查。
+- 自动繁育默认只选 **1–3 星**；四星及以上不繁育（`auto_breed_max_grade=3`，可改为 5）。
 - 安装器新增“启用自动繁育”复选框（默认勾选）；取消勾选即关闭。
 
 ## 为什么不是 BepInEx
@@ -45,7 +46,7 @@
 
 ## 安装
 
-1. 下载 `PCFishTool-Setup-v0.3.0-beta.4.exe`。
+1. 下载 `PCFishTool-Setup-v0.3.0-beta.5.exe`。
 2. 关闭正在运行的《PC FISH》。
 3. 双击安装器，确认游戏目录，点击“安装 / 更新”（需要管理员权限）。
 4. 启动游戏；插件自动加载。
@@ -54,16 +55,16 @@
 静默安装 / 卸载：
 
 ```powershell
-.\PCFishTool-Setup-v0.3.0-beta.4.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
-.\PCFishTool-Setup-v0.3.0-beta.4.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.5.exe --silent --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
+.\PCFishTool-Setup-v0.3.0-beta.5.exe --uninstall --dir="C:\Program Files (x86)\Steam\steamapps\common\PC FISH"
 ```
 
 ## 文件
 
 | 资产 | 说明 |
 | --- | --- |
-| `PCFishTool-Setup-v0.3.0-beta.4.exe` | 插件版安装器（推荐） |
-| `PCFish-Tool-v0.3.0-beta.4.zip` | 机制文档 / 存档分析 / 旧 Frida 脚本 |
+| `PCFishTool-Setup-v0.3.0-beta.5.exe` | 插件版安装器（推荐） |
+| `PCFish-Tool-v0.3.0-beta.5.zip` | 机制文档 / 存档分析 / 旧 Frida 脚本 |
 | `SHA256SUMS.txt` | 校验 |
 
 安装后游戏目录新增：
@@ -94,8 +95,8 @@ Mods/PCFishTool.dll
 ## 校验
 
 ```powershell
-Get-FileHash .\PCFishTool-Setup-v0.3.0-beta.4.exe -Algorithm SHA256
-Get-FileHash .\PCFish-Tool-v0.3.0-beta.4.zip -Algorithm SHA256
+Get-FileHash .\PCFishTool-Setup-v0.3.0-beta.5.exe -Algorithm SHA256
+Get-FileHash .\PCFish-Tool-v0.3.0-beta.5.zip -Algorithm SHA256
 ```
 
 ## 说明
